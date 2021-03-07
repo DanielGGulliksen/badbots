@@ -25,7 +25,8 @@ connectionList = []; # The list of all connected clients.
 def end():
     serverSocket.close()
 
-  # This class is used to let the server socket communicate with clients separately.
+  # This class is used to let the server socket communicate with clients separately. Since each
+  # thread is separate. Each TCP connection is isolated from eachother.
 class connection(threading.Thread):
 
     def __init__(self, threadNumber, clientSocket, clientAddress, botName):
@@ -103,14 +104,18 @@ connector.start()
 def removeFromList(disconnectedClient):
     connector.discard(disconnectedClient)
 
+ # Server updates suggestion at even intervals.
 verb = "";
-for counter in range(8):
+for counter in range(10):
+    time.sleep(12)
     verb = random.choice(["cook", "eat", "sleep", "study", "read", "cry", "think", "meet", "overthrow", "play", "work"])
-    suggestion = "Host: How about {}?".format(verb + "ing")
+    suggestion = "\nHost: How about {}?".format(verb + "ing")
     print(suggestion)
     for conn in connectionList:
         conn.newSuggestion(suggestion)
-    time.sleep(3)
 
+
+
+ # Communication ends on server timout.
 print("Closing session.")
 sys.exit()
