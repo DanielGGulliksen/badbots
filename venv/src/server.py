@@ -29,12 +29,11 @@ def end():
   # thread is separate. Each TCP connection is isolated from eachother.
 class connection(threading.Thread):
 
-    def __init__(self, threadNumber, clientSocket, clientAddress, botName):
+    def __init__(self, threadNumber, clientSocket, clientAddress):
         self.thread = threading.Thread.__init__(self)
         self.threadNumber = threadNumber
         self.clientSocket = clientSocket
         self.clientAddress = clientAddress
-        self.botName = botName
         self.stillConnected = True; # used to track whether client is still connected
 
     def run(self):
@@ -86,9 +85,8 @@ class connector(threading.Thread):
         while True:
 
             clientSocket, address = serverSocket.accept()
-            botName = clientSocket.recv(1024).decode()
 
-            newConnection = connection(len(connectionList), clientSocket, address, botName)
+            newConnection = connection(len(connectionList), clientSocket, address)
 
             connectionList.append(newConnection)
             connectionList[len(connectionList) - 1].start()

@@ -37,7 +37,7 @@ while (validateBot(bot) == False):
 print("Connecting to '" + bot + "' at socket " + str(ip) + ":" + str(port) + " ....")
 clientSocket.connect((ip,int(port)))
 
-clientSocket.send(bot.encode())
+#clientSocket.send(bot.encode())
 print("Introduced bot.")
 
 print("Running...")
