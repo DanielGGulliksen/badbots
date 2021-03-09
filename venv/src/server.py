@@ -22,9 +22,6 @@ serverSocket.listen()
 
 connectionList = []; # The list of all connected clients.
 
-def end():
-    serverSocket.close()
-
   # This class is used to let the server socket communicate with clients separately. Since each
   # thread is separate. Each TCP connection is isolated from eachother.
 class connection(threading.Thread):
