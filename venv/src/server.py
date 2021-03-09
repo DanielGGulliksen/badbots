@@ -112,8 +112,6 @@ for counter in range(10):
     for conn in connectionList:
         conn.newSuggestion(suggestion)
 
-
-
  # Communication ends on server timout.
 print("Closing session.")
 sys.exit()
