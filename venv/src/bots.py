@@ -1,4 +1,4 @@
-verbs = ["cook", "eat", "sleep", "study", "read", "cry", "think", "meet", "overthrow", "play", "work"]
+verbs = ["eat", "sleep", "study", "read", "cry", "think", "meet", "overthrow", "play", "work"]
 import random
 
 def extract(suggestion):
@@ -7,16 +7,18 @@ def extract(suggestion):
             return verb
 
 
-def formulate(bot, verb):
-   if (bot == "thinker"): return thinker(verb)
-   if (bot == "complainer"): return complainer(verb)
-   if (bot == "guesser"): return guesser(verb)
-   if (bot == "talker"): return talker(verb);
+def formulate(bot, verb, altverb = None):
+   if (bot == "thinker"): return thinker(verb, altverb)
+   if (bot == "complainer"): return complainer(verb, altverb)
+   if (bot == "guesser"): return guesser(verb, altverb)
    return "Invalid bot parameter";
 
 
 thinkersList = [];
-def thinker (suggestion):
+def thinker (suggestion, altsuggestion = None):
+  if (altsuggestion != None):
+      return "";
+
   length = len(thinkersList)
   thinkersList.append(suggestion)
 
@@ -37,24 +39,39 @@ def thinker (suggestion):
           answer += "I'm not to keen on {}. ".format(verb + "ing")
 
   thinkersList.clear()
+
+
   return answer;
 
-
+"""
 def talker(suggestion, altsuggestion = None):
     if (altsuggestion == None):
         return "Talker: hey";
     return "Talker: I feel {} and {} are tempting.".format(suggestion + "ing", altsuggestion + "ing")
-
+"""
 
 complainersList = [];
-def complainer (suggestion):
-  if suggestion in complainersList:
-      return "Complainer: Suggesting {} again? Really?".format(suggestion + "ing")
-  complainersList.append(suggestion)
-  return "Complainer: ..."
-guesses = [];
+def complainer (suggestion, altsuggestion = None):
+  ret = "Complainer: ...";
+  if (altsuggestion == None):
+      if suggestion in complainersList:
+          ret = "Complainer: Suggesting {} again? Really?".format(suggestion + "ing")
+      complainersList.append(suggestion)
 
-def guesser (suggestion):
+  else:
+      if altsuggestion in complainersList:
+          if suggestion in complainersList:
+             return "Complainer: I'm tired of people saying {}.".format(altsuggestion + "ing")
+          else:
+             return "Complainer: I didn't hear {} before, but I had to hear {} again...".format(suggestion + "ing", altsuggestion + "ing")
+      else:
+        return "";
+
+  return ret;
+
+guesserLikes = ["play", "think", "read", "meet", "overthrow", "eat", "work", "eat"];
+guesses = [];
+def guesser (suggestion, altsuggestion = None):
 
     guess1 = random.choice(verbs)
     guess2 = random.choice(verbs)
@@ -63,6 +80,12 @@ def guesser (suggestion):
 
     correct = (suggestion in guesses);
     guesses.clear()
+
+    if (altsuggestion != None):
+        if altsuggestion in guesserLikes:
+            return "Guesser: By the way, I'm totally down for {}.".format(altsuggestion + "ing")
+        else:
+            return "";
 
     if (not correct):
         guesses.append(guess1)

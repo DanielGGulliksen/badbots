@@ -23,7 +23,8 @@ serverSocket.listen()
 connectionList = []; # The list of all connected clients.
 
   # This class is used to let the server socket communicate with clients separately. Since each
-  # thread is separate. Each TCP connection is isolated from eachother.
+  # thread is separate.
+  # Furthermore, if one client.py disconnects, the server and remaining clients will not be affected.
 class connection(threading.Thread):
 
     def __init__(self, threadNumber, clientSocket, clientAddress):
@@ -38,8 +39,11 @@ class connection(threading.Thread):
 
         while (self.stillConnected):
             message = "";
+
+            # Exceptions are managed to allow clients.py to disconnect and reconnect from the server
+            # without stopping server.py or it's ongoing TCP connections.
             try:
-              message = self.clientSocket.recv(1024).decode() # .recv() is also used to track whether
+              message = self.clientSocket.recv(1024).decode() # .recv() is additionally used to track whether
                                                               # the client is still connected.
             except:
               print(f"Client at connection {self.threadNumber} is no longer connected."
@@ -49,6 +53,7 @@ class connection(threading.Thread):
 
             if (message != ""):
                 print(message)
+                message = message;
                 relay(self, message)
             else:
                 self.stillConnected = False;
@@ -62,6 +67,8 @@ class connection(threading.Thread):
                   f" Removing client connection from list.")
             self.removeSelf()
 
+    # So far, this method has only proved necessary when the user forcefully interrupts/stops the
+    # client.py program.
     def removeSelf(self):
         removeFromList(self)
 
@@ -88,6 +95,7 @@ class connector(threading.Thread):
             connectionList.append(newConnection)
             connectionList[len(connectionList) - 1].start()
 
+     # Since separate threads are used
     def discard(self, disconnectedC):
         self.connectionList.remove(disconnectedC)
         print(f"Connection {disconnectedC.threadNumber} was successfully removed from connectionList.")
@@ -101,9 +109,9 @@ def removeFromList(disconnectedClient):
 
  # Server updates suggestion at even intervals.
 verb = "";
-for counter in range(10):
-    time.sleep(12)
-    verb = random.choice(["cook", "eat", "sleep", "study", "read", "cry", "think", "meet", "overthrow", "play", "work"])
+for counter in range(12):
+    time.sleep(9)
+    verb = random.choice(["eat", "sleep", "study", "read", "cry", "think", "meet", "overthrow", "play", "work"])
     suggestion = "\nHost: How about {}?".format(verb + "ing")
     print(suggestion)
     for conn in connectionList:

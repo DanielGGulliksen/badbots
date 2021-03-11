@@ -2,6 +2,8 @@ import socket
 from bots import *
 import argparse
 import sys
+
+# These imports were used strictly for "realism"
 import random
 import time
 
@@ -28,7 +30,6 @@ def validateBot(bot):
     if (bot == "thinker"): return True;
     if (bot == "complainer"): return True;
     if (bot == "guesser"): return True;
-    if (bot == "talker"): return True;
     return False;
 
 while (validateBot(bot) == False):
@@ -37,56 +38,47 @@ while (validateBot(bot) == False):
 print("Connecting to '" + bot + "' at socket " + str(ip) + ":" + str(port) + " ....")
 clientSocket.connect((ip,int(port)))
 
-#clientSocket.send(bot.encode())
-print("Introduced bot.")
+print("Successfully connected to {} at port {}".format(ip,port))
 
 print("Running...")
 
 message = "";
 rememberedVerb = "";
-alt2 = "";
+
+# Infinite loop: server.py decides when the running client.py instances will stop.
 while True:
    message = None;
+
    try:
     message = clientSocket.recv(1024)
    except:
     print("Server ended connection.")
     sys.exit()
+
    if (message != None):
        message = message.decode()
        print(message)
+       verb = extract(message)
 
-       if ("Host:" in message):
-          verb = extract(message)
-          if (verb != None):
+       if (verb != None):
+           response = "";
+           if ("Host:" in message):
               rememberedVerb = verb;
-              response = formulate(bot, verb);
-              if (bot != "talker"):
-                 time.sleep(random.randint(2,7))
-              else:
-                 time.sleep(random.randint(7,9))
-              try:
-               clientSocket.send(response.encode())
-              except:
-               print("Server ended connection.")
-               sys.exit()
 
-       # The portion of code below, as well as any lines relevant to the "talker" bot, the
-       # 'rememberedVerb' and 'alt2' are not necessary for client.py to function. They
-       # exist solely because of how I interpreted questions 2aii and 2b. I'm aware of
-       # how these questions were optional, but I still found them unclear.
-       elif (message != "" and rememberedVerb != ""):
-           temp = alt2;
-           alt2 = extract(message);
-           if (alt2 == ""):
-               alt2 = temp;
-           if (alt2 != "" and alt2 != rememberedVerb):
-               if (bot == "talker"):
-                   answer = talker(rememberedVerb, alt2)
-                   try:
-                    clientSocket.send(answer.encode())
-                   except:
-                    print("Server ended connection.")
-                    sys.exit()
-                   rememberedVerb = "";
-                   alt2 = "";
+                         # formulate(...) is responsible for calling the "bot" the user chose
+              response = formulate(bot, verb)
+           elif (message != "" and rememberedVerb != ""):
+
+                # 'verb' becomes the second alternative if message is not from server.
+              if (verb != rememberedVerb):
+                  response = formulate(bot, rememberedVerb, verb);
+                  rememberedVerb = "";
+
+           time.sleep(random.randint(1,4))
+
+           try:
+               if (response != ""):
+                   clientSocket.send(response.encode())
+           except:
+              print("Server ended connection.")
+              sys.exit()
