@@ -14,7 +14,7 @@ cmdParser.add_argument("-ip", help="The provided IP is used to define the (remot
 cmdParser.add_argument("-port", help="The provided port number is used to define the (remote) socket "
                                      "to be connected to.")
 cmdParser.add_argument("-bot", help="The provided bot name is used to select which bot to use in this instance."
-                                    " There are four available bots, 'thinker', 'complainer', 'talker', and 'guesser'."
+                                    " There are three available bots, 'thinker', 'complainer', and 'guesser'."
                                     " **Please provide the bot name without quotation marks and without capital"
                                     " letters.**")
 
